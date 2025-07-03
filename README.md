@@ -1,6 +1,6 @@
 ## MOODIFIER = [MOOD + AMPLIFIER]
 
-Moddifier is a journal writing platform which allows the user to write what they and thinking currently and according they get a feedback of how their current mood is. it is importat to track one's mental health that is why MOODIFIER helps to elevate and channelize your thought and help you to get better by suggesting good motivating quotes according to the user's mood.
+Moodifier is a journal writing platform which allows the user to write what they and thinking currently and according they get a feedback of how their current mood is. it is importat to track one's mental health that is why MOODIFIER helps to elevate and channelize your thought and help you to get better by suggesting good motivating quotes according to the user's mood.
 
 oodifier uses a **pretrained transformer model** from Hugging Face to classify text into emotions. Behind the scenes:
 
