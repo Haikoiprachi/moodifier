@@ -1,19 +1,10 @@
-# utils.py
 from transformers import pipeline
 
-# --- Cache the model so it's loaded only once ---
-_model = None
-
-def load_model():
-    global _model
-    if _model is None:
-        _model = pipeline(
-            "text-classification",
-            model="cardiffnlp/twitter-roberta-base-emotion",
-            top_k=1
-        )
-    return _model
-
+emotion_classifier = pipeline(
+    "text-classification",
+    model="cardiffnlp/twitter-roberta-base-emotion",
+    top_k=1
+)
 
 quotes = {
     "joy": "Keep smiling and let your inner light shine.",
@@ -24,35 +15,18 @@ quotes = {
     "surprise": "Embrace the unexpected. Life is full of wonder."
 }
 
-
 def detect_emotion(text):
-    """
-    Detects emotion from text using the Hugging Face model.
-    Returns (emotion, confidence).
-    """
-    model = load_model()
-    result = model(text)
+    result = emotion_classifier(text)
 
-    # Handle both possible output formats
-    if isinstance(result, list) and len(result) > 0:
+    # Handle both possible formats of pipeline output
+    if isinstance(result, list):
         first = result[0]
-        if isinstance(first, list) and len(first) > 0:
-            r = first[0]
-        elif isinstance(first, dict):
-            r = first
-        else:
-            r = {"label": "unknown", "score": 0.0}
-    elif isinstance(result, dict):
-        r = result
-    else:
-        r = {"label": "unknown", "score": 0.0}
+        if isinstance(first, list):
+            first = first[0]
+        if isinstance(first, dict):
+            return first.get('label', 'unknown'), first.get('score', 0.0)
 
-    label = r.get("label", "unknown")
-    score = float(r.get("score", 0.0))
-    return label, score
-
+    return "unknown", 0.0
 
 def suggest_quote(emotion):
-    """Suggest a quote based on the detected emotion."""
     return quotes.get(emotion.lower(), "Every emotion is valid. Take your time to understand it.")
-
