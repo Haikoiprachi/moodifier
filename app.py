@@ -1,29 +1,31 @@
-# app.py
 import streamlit as st
-from utils import detect_emotion, suggest_quote
+from transformers import pipeline
 
-st.set_page_config(page_title="Moodifier - Mental Health Journal", layout="centered")
+# Load the pretrained emotion detection model
+@st.cache_resource
+def load_model():
+    return pipeline("text-classification", model="bhadresh-savani/distilbert-base-uncased-emotion")
 
-st.title("🧠 Moodifier: Not just a journal... but your support system!")
-st.markdown("Write your thoughts, and let us help you understand your emotions.")
+emotion_classifier = load_model()
 
-# Text area for journal entry
-text = st.text_area("📓 What's on your mind today?", height=200)
+# Streamlit UI
+st.set_page_config(page_title="Moodifier – Emotion Detector", page_icon="🌈", layout="centered")
 
-# Analyze button
-if st.button("🧠 Analyze My Mood"):
-    if not text.strip():
-        st.warning("Please write something before analyzing.")
+st.title("🌈 Moodifier – Your Emotion Detector")
+st.write("Type your thoughts below, and I'll tell you how you might be feeling.")
+
+# User input
+text = st.text_area("What's on your mind today?", "")
+
+if st.button("Detect Emotion"):
+    if text.strip() == "":
+        st.warning("Please enter some text first!")
     else:
-        with st.spinner("Analyzing your mood..."):
-            emotion, confidence = detect_emotion(text)
+        with st.spinner("Analyzing your emotions..."):
+            result = emotion_classifier(text)[0]
+            emotion = result['label']
+            confidence = result['score']
 
-        st.subheader("🧾 Analysis Result")
-        st.write(f"**Detected Emotion:** `{emotion}`")
-        st.write(f"**Confidence:** `{round(confidence * 100)}%`")
-
-        st.subheader("🌈 Suggested Thought")
-        st.success(suggest_quote(emotion))
-
-        st.markdown("---")
-        st.caption("This is an AI tool and not a substitute for professional help.")
+        # Show results
+        st.success(f"**Detected Emotion:** {emotion}")
+        st.write(f"**Confidence:** {confidence:.2%}")
